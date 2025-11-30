@@ -27,7 +27,7 @@
             max-width: 800px;
             height: 450px;
             border-radius: 8px;
-            background: #000; /* 黑色背景，捕获前显示 */
+            background: #000;
         }
         button {
             margin: 10px;
@@ -59,7 +59,7 @@
         <br>
         <button id="startBtn">开始捕获窗口</button>
         <button id="stopBtn" disabled>停止捕获</button>
-        <p>点击“开始捕获”后，浏览器会提示选择一个电脑窗口（如应用或浏览器标签）。视频区域将实时显示该窗口内容。你可以拖动窗口，视频会同步更新。</p>
+        <p>点击“开始捕获”后，浏览器会提示选择一个电脑窗口。视频区域将实时显示该窗口内容。</p>
     </div>
 
     <script>
@@ -69,19 +69,15 @@
 
         startBtn.addEventListener('click', async () => {
             try {
-                // 捕获屏幕或窗口（video: true 表示只捕获视频流）
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
-                        mediaSource: 'window'  // 只捕获单个窗口（可选：'screen' 为整个屏幕）
+                        mediaSource: 'window'
                     }
                 });
                 video.srcObject = stream;
-
-                // 停止按钮激活
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
 
-                // 监听流结束（用户关闭捕获）
                 stream.getTracks().forEach(track => {
                     track.addEventListener('ended', () => {
                         stopCapture();
