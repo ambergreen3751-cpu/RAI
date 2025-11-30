@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电脑窗口捕获视频</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        video {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            border-radius: 8px;
+            background: #000; /* 黑色背景，捕获前显示 */
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        p {
+            color: #666;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>电脑窗口捕获播放器</h1>
+        <video id="video" autoplay muted></video>
+        <br>
+        <button id="startBtn">开始捕获窗口</button>
+        <button id="stopBtn" disabled>停止捕获</button>
+        <p>点击“开始捕获”后，浏览器会提示选择一个电脑窗口（如应用或浏览器标签）。视频区域将实时显示该窗口内容。你可以拖动窗口，视频会同步更新。</p>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        startBtn.addEventListener('click', async () => {
+            try {
+                // 捕获屏幕或窗口（video: true 表示只捕获视频流）
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        mediaSource: 'window'  // 只捕获单个窗口（可选：'screen' 为整个屏幕）
+                    }
+                });
+                video.srcObject = stream;
+
+                // 停止按钮激活
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+
+                // 监听流结束（用户关闭捕获）
+                stream.getTracks().forEach(track => {
+                    track.addEventListener('ended', () => {
+                        stopCapture();
+                    });
+                });
+            } catch (error) {
+                alert('捕获失败：' + error.message + '\n请检查浏览器权限或使用HTTPS。');
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            stopCapture();
+        });
+
+        function stopCapture() {
+            const stream = video.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+    </script>
+</body>
+</html>
